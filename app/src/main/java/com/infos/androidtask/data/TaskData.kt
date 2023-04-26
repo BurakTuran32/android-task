@@ -1,27 +1,32 @@
 package com.infos.androidtask.data
 
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
-
+@Entity(tableName = "taskModel")
 data class TaskData(
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo val id :Int,
     @SerializedName("BusinessUnitKey")
-    val businessUnitKey: String?,
+    @ColumnInfo val businessUnitKey: String?,
     @SerializedName("businessUnit")
-    val businessUnit: String?,
+    @ColumnInfo val businessUnit: String?,
     @SerializedName("colorCode")
-    val colorCode: String,
+    @ColumnInfo val colorCode: String,
     @SerializedName("description")
-    val description: String,
+    @ColumnInfo val description: String,
     @SerializedName("isAvailableInTimeTrackingKioskMode")
-    val isAvailableInTimeTrackingKioskMode: Boolean,
+    @ColumnInfo val isAvailableInTimeTrackingKioskMode: Boolean,
     @SerializedName("parentTaskID")
-    val parentTaskId: String,
+    @ColumnInfo val parentTaskId: String,
     @SerializedName("sort")
-    val sort: String,
+    @ColumnInfo val sort: String,
     @SerializedName("task")
-    val task: String,
+    @ColumnInfo val task: String,
     @SerializedName("title")
-    val title: String,
+    @ColumnInfo val title: String,
     @SerializedName("wageType")
-    val wageType: String,
+    @ColumnInfo val wageType: String,
 )

@@ -56,6 +56,7 @@ class HomeViewModel @Inject constructor(
                     when (result.status) {
                         Resource.Status.SUCCESS -> {
                             _task.value = result
+                            result.data?.let { repository.saveData(it) }
                         }
                         Resource.Status.ERROR -> {
                             Log.e(
@@ -79,4 +80,10 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    fun getLocal() : List<TaskData>{
+        return  repository.getData()
+    }
+
+
 }

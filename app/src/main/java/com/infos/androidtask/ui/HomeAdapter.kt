@@ -27,8 +27,12 @@ class HomeAdapter: Adapter<HomeAdapter.TaskHolder>() {
             decTv.text = "Description: ${taskData.description} "
             TitleTV.text = "Title: ${taskData.title} "
             colorTv.text = "ColorCode: ${taskData.colorCode} "
-            cardView.setCardBackgroundColor(Color.parseColor(taskData.colorCode))
+            if (taskData.colorCode != "" && taskData.colorCode != null){
+                cardView.setCardBackgroundColor(Color.parseColor(taskData.colorCode))
+            }
+
         }
+
 
     }
 
