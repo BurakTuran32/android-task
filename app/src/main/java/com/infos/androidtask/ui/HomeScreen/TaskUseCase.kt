@@ -1,4 +1,4 @@
-package com.infos.androidtask.ui
+package com.infos.androidtask.ui.HomeScreen
 
 import com.infos.androidtask.data.TaskData
 import com.infos.androidtask.data.remote.Repository

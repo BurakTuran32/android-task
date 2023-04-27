@@ -1,13 +1,15 @@
-package com.infos.androidtask.ui
+package com.infos.androidtask.ui.QrScreen
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.SurfaceHolder
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.android.gms.vision.CameraSource
@@ -117,9 +119,12 @@ class QrActivity : AppCompatActivity() {
 
 
 
+
                     runOnUiThread {
                         cameraSource.stop()
-                        Toast.makeText(applicationContext, "value- $scannedValue", Toast.LENGTH_SHORT).show()
+                        val resultIntent = Intent()
+                        resultIntent.putExtra("result", scannedValue)
+                        setResult(Activity.RESULT_OK, resultIntent)
                         finish()
                     }
                 }else

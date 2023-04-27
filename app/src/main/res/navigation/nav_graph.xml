@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.infos.androidtask.ui.HomeFragment"
+        android:name="com.infos.androidtask.ui.HomeScreen.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" />
 </navigation>

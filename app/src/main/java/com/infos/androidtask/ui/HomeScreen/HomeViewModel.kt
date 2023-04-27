@@ -1,4 +1,4 @@
-package com.infos.androidtask.ui
+package com.infos.androidtask.ui.HomeScreen
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -26,6 +26,7 @@ class HomeViewModel @Inject constructor(
     init {
         authorizeAndFetchTask()
     }
+
 
     private fun authorizeAndFetchTask() {
         viewModelScope.launch {
@@ -84,6 +85,5 @@ class HomeViewModel @Inject constructor(
     fun getLocal() : List<TaskData>{
         return  repository.getData()
     }
-
 
 }
