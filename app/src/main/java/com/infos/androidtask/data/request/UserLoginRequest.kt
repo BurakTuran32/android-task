@@ -1,4 +1,4 @@
-package com.infos.androidtask.data.user
+package com.infos.androidtask.data.request
 
 import com.google.gson.annotations.SerializedName
 

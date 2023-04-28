@@ -1,41 +1,56 @@
-package com.infos.androidtask.ui.HomeScreen
+package com.infos.androidtask.worker
 
+import android.content.Context
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.infos.androidtask.data.response.TaskData
+import androidx.hilt.work.HiltWorker
+import androidx.work.CoroutineWorker
+import androidx.work.WorkerParameters
 import com.infos.androidtask.data.Repository
+import com.infos.androidtask.ui.HomeScreen.HomeViewModel
+import com.infos.androidtask.ui.HomeScreen.TaskUseCase
 import com.infos.androidtask.util.Resource
 import com.infos.androidtask.util.TokenManager
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
-import javax.inject.Inject
 
-@HiltViewModel
-class HomeViewModel @Inject constructor(
-    private val taskUseCase: TaskUseCase,
+@HiltWorker
+class RefreshWorker @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted workerParameters: WorkerParameters,
+    private val repository: Repository,
     private val tokenManager: TokenManager,
-    private val repository: Repository
-) : ViewModel() {
-    private val _task = MutableLiveData<Resource<List<TaskData>>>()
-    val task: LiveData<Resource<List<TaskData>>> = _task
+    private val taskUseCase: TaskUseCase
+): CoroutineWorker(context,workerParameters) {
 
-    init {
-        authorizeAndFetchTask()
+    companion object {
+        const val WORK_NAME = "refresh_data_work"
     }
 
+    override suspend fun doWork(): Result {
+        withContext(Dispatchers.IO) {
+            try {
+                authorizeAndFetchTask()
+                Log.i("sync_items", "WorkManager: Work request for sync is run ")
+            } catch (e: Exception) {
+                Log.e("sync_items", "doWork: ${e.message}")
+                e.printStackTrace()
+                return@withContext Result.retry()
+            }
+        }
+        return Result.success()
+    }
 
-    private fun authorizeAndFetchTask() {
-        viewModelScope.launch {
+        private suspend fun authorizeAndFetchTask() {
+
             try {
                 // authorize
                 val response = repository.authorize()
                 val token = response.oauth.access_token
                 tokenManager.saveAccessToken(token)
-
                 fetchTask()
             } catch (e: Exception) {
                 if (e is HttpException) {
@@ -47,16 +62,14 @@ class HomeViewModel @Inject constructor(
                     e.printStackTrace()
                 }
             }
-        }
-    }
 
-    private fun fetchTask() {
-        viewModelScope.launch {
+        }
+
+        private fun fetchTask() {
             try {
-                taskUseCase().collect { result ->
+                taskUseCase().onEach{ result ->
                     when (result.status) {
                         Resource.Status.SUCCESS -> {
-                            _task.value = result
                             result.data?.let { repository.saveData(it) }
                         }
                         Resource.Status.ERROR -> {
@@ -82,8 +95,4 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getLocal() : List<TaskData>{
-        return  repository.getData()
-    }
 
-}

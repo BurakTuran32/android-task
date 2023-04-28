@@ -1,8 +1,8 @@
 package com.infos.androidtask.data.remote
 
-import com.infos.androidtask.data.TaskData
-import com.infos.androidtask.data.user.LoginResponse
-import com.infos.androidtask.data.user.UserLoginRequest
+import com.infos.androidtask.data.response.TaskData
+import com.infos.androidtask.data.response.user.LoginResponse
+import com.infos.androidtask.data.request.UserLoginRequest
 import com.infos.androidtask.util.Constants
 import retrofit2.http.Body
 import retrofit2.http.GET

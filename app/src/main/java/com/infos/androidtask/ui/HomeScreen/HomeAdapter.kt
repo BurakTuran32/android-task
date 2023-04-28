@@ -1,5 +1,6 @@
 package com.infos.androidtask.ui.HomeScreen
 
+import android.content.Context
 import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,10 +8,11 @@ import androidx.recyclerview.widget.AsyncListDiffer
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.Adapter
-import com.infos.androidtask.data.TaskData
+import com.infos.androidtask.R
+import com.infos.androidtask.data.response.TaskData
 import com.infos.androidtask.databinding.TaskRowBinding
 
-class HomeAdapter: Adapter<HomeAdapter.TaskHolder>() {
+class HomeAdapter(private val context: Context): Adapter<HomeAdapter.TaskHolder>() {
     class TaskHolder(val binding : TaskRowBinding): RecyclerView.ViewHolder(binding.root) {
 
     }
@@ -35,11 +37,11 @@ class HomeAdapter: Adapter<HomeAdapter.TaskHolder>() {
     override fun onBindViewHolder(holder: TaskHolder, position: Int) {
         val taskData = differ.currentList[position]
         holder.binding.apply {
-            taskTV.text = "Task: ${taskData.task} "
-            decTv.text = "Description: ${taskData.description} "
-            TitleTV.text = "Title: ${taskData.title} "
-            colorTv.text = "ColorCode: ${taskData.colorCode} "
-            if (taskData.colorCode != "" && taskData.colorCode != null){
+            taskTV.text = context.getString(R.string.task,taskData.task)
+            decTv.text = context.getString(R.string.desc,taskData.description)
+            TitleTV.text = context.getString(R.string.title,taskData.title)
+            colorTv.text = context.getString(R.string.colorCode,taskData.colorCode)
+            if (!taskData.colorCode.isNullOrEmpty()){
                 cardView.setCardBackgroundColor(Color.parseColor(taskData.colorCode))
             }
 

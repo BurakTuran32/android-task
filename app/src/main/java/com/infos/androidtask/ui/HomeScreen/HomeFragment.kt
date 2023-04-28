@@ -15,7 +15,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.infos.androidtask.base.BaseFragment
-import com.infos.androidtask.data.TaskData
+import com.infos.androidtask.data.response.TaskData
 import com.infos.androidtask.databinding.FragmentHomeBinding
 import com.infos.androidtask.ui.QrScreen.QrActivity
 import com.infos.androidtask.worker.RefreshWorker
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit
 @AndroidEntryPoint
 class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::inflate) {
 
-    private val adapter by lazy { HomeAdapter() }
+    private val adapter by lazy { HomeAdapter(requireContext()) }
     private val viewModel: HomeViewModel by viewModels()
     private val taskList = arrayListOf<TaskData>()
     val QR_REQUEST_CODE = 123
@@ -78,8 +78,20 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
                 return false
             }
         })
+        binding.SearchView.setOnSearchClickListener {
+            binding.textView.visibility = View.GONE
+        }
 
-
+        binding.SearchView.setOnCloseListener(object : SearchView.OnCloseListener {
+            override fun onClose(): Boolean {
+                binding.textView.visibility = View.VISIBLE
+                taskList.clear()
+                if (checkNetwork(requireContext())){
+                    getDataApi()
+                }else getDataLocal()
+                return false
+            }
+        })
 
         binding.qrButton.setOnClickListener {
             val intent = Intent(requireContext(), QrActivity::class.java)
@@ -90,7 +102,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == QR_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            val resultString = data?.getStringExtra("result") // assuming the key for the string value is "result"
+            val resultString = data?.getStringExtra("result")
             filter(resultString)
         }
     }
@@ -99,10 +111,11 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
 
 
+
     private fun checkNetwork(context: Context): Boolean {
         val connectivityManager =
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (connectivityManager != null) {
+
             val capabilities =
                 connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
             if (capabilities != null) {
@@ -116,7 +129,7 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
             }else{
                 Toast.makeText(context,"Internet connection is not available.",Toast.LENGTH_LONG).show()
             }
-        }else  Toast.makeText(context,"Internet connection is not available.",Toast.LENGTH_LONG).show()
+
         return false
     }
 
@@ -137,43 +150,39 @@ class HomeFragment : BaseFragment<FragmentHomeBinding>(FragmentHomeBinding::infl
 
     private fun filter(text: String?){
         val filteredList: ArrayList<TaskData> = ArrayList()
-        if (text != null) {
-            for (item in taskList){
-                if (item.task?.lowercase(Locale.getDefault())?.contains(text.lowercase(Locale.getDefault())) == true){
-                    filteredList.add(item)
-                }
-                if (item.description?.lowercase(Locale.getDefault())?.contains(text.lowercase(Locale.getDefault())) == true){
-                    filteredList.add(item)
-                }
-                if (item.colorCode?.lowercase(Locale.getDefault())?.contains(text.lowercase(Locale.getDefault())) == true){
-                    filteredList.add(item)
-                }
-                if (item.title?.lowercase(Locale.getDefault())?.contains(text.lowercase(Locale.getDefault())) == true){
-                    filteredList.add(item)
-                }
-                if (item.businessUnit?.lowercase(Locale.getDefault())?.contains(text.lowercase(Locale.getDefault())) == true){
-                    filteredList.add(item)
-                }
-                if (item.businessUnitKey?.lowercase(Locale.getDefault())?.contains(text.lowercase(Locale.getDefault())) == true){
-                    filteredList.add(item)
-                }
-                if (item.parentTaskId?.lowercase(Locale.getDefault())?.contains(text.lowercase(Locale.getDefault())) == true){
-                    filteredList.add(item)
-                }
-                if (item.sort?.lowercase(Locale.getDefault())?.contains(text.lowercase(Locale.getDefault())) == true){
-                    filteredList.add(item)
-                }
-                if (item.wageType?.lowercase(Locale.getDefault())?.contains(text.lowercase(Locale.getDefault())) == true){
-                    filteredList.add(item)
+        if (!text.isNullOrEmpty()) {
+            for (item in taskList) {
+                when {
+                    item.task?.lowercase()?.contains(text.lowercase()) == true -> filteredList.add(
+                        item
+                    )
+                    item.description?.lowercase()
+                        ?.contains(text.lowercase()) == true -> filteredList.add(item)
+                    item.colorCode?.lowercase()
+                        ?.contains(text.lowercase()) == true -> filteredList.add(item)
+                    item.title?.lowercase()?.contains(text.lowercase()) == true -> filteredList.add(
+                        item
+                    )
+                    item.businessUnit?.lowercase()
+                        ?.contains(text.lowercase()) == true -> filteredList.add(item)
+                    item.businessUnitKey?.lowercase()
+                        ?.contains(text.lowercase()) == true -> filteredList.add(item)
+                    item.parentTaskId?.lowercase()
+                        ?.contains(text.lowercase()) == true -> filteredList.add(item)
+                    item.sort?.lowercase()?.contains(text.lowercase()) == true -> filteredList.add(
+                        item
+                    )
+                    item.wageType?.lowercase()
+                        ?.contains(text.lowercase()) == true -> filteredList.add(item)
+
                 }
             }
-            if (filteredList.isEmpty()){
-                Toast.makeText(requireContext(),"No data found",Toast.LENGTH_LONG).show()
-            }else{
+
+            if (!filteredList.isEmpty()){
                 adapter.differ.submitList(filteredList)
             }
+
         }
     }
-
 
 }

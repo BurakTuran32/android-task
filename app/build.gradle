@@ -85,4 +85,5 @@ dependencies {
     // WorkManager
     def work_version = "2.8.1"
     implementation "androidx.work:work-runtime-ktx:$work_version"
+    implementation 'com.github.yuriy-budiyev:code-scanner:2.1.2'
 }

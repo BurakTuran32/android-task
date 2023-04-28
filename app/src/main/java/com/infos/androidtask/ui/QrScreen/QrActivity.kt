@@ -1,32 +1,32 @@
 package com.infos.androidtask.ui.QrScreen
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.view.SurfaceHolder
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.budiyev.android.codescanner.*
 import com.google.android.gms.vision.CameraSource
-import com.google.android.gms.vision.Detector
 import com.google.android.gms.vision.barcode.Barcode
 import com.google.android.gms.vision.barcode.BarcodeDetector
 import com.infos.androidtask.R
 import com.infos.androidtask.databinding.ActivityQrBinding
-import java.io.IOException
 
 class QrActivity : AppCompatActivity() {
 
-    private val requestCodeCameraPermission = 1001
+    private val requestCodeCameraPermission = 200
     private lateinit var cameraSource: CameraSource
     private lateinit var barcodeDetector: BarcodeDetector
     private var scannedValue = ""
     private lateinit var binding: ActivityQrBinding
+    private var codeScanner: CodeScanner? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,23 +34,6 @@ class QrActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-
-        if (ContextCompat.checkSelfPermission(
-                applicationContext, Manifest.permission.CAMERA
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            askForCameraPermission()
-        } else {
-            setupControls()
-        }
-
-        val aniSlide: Animation =
-            AnimationUtils.loadAnimation(applicationContext, R.anim.scanner_animation)
-        binding.barcodeLine.startAnimation(aniSlide)
-    }
-
-
-    private fun setupControls() {
         barcodeDetector =
             BarcodeDetector.Builder(applicationContext).setBarcodeFormats(Barcode.ALL_FORMATS).build()
 
@@ -59,81 +42,68 @@ class QrActivity : AppCompatActivity() {
             .setAutoFocusEnabled(true)
             .build()
 
-        binding.cameraSurfaceView.getHolder().addCallback(object : SurfaceHolder.Callback {
+        if (!isPermissionGranted()){
+            askForCameraPermission()
 
-            override fun surfaceCreated(holder: SurfaceHolder) {
-                try {
+        } else {
+            setupControls()
+        }
 
-                    if (ActivityCompat.checkSelfPermission(
-                            applicationContext,
-                            Manifest.permission.CAMERA
-                        ) != PackageManager.PERMISSION_GRANTED
-                    ) {
+        val aniSlide: Animation =
+            AnimationUtils.loadAnimation(applicationContext, R.anim.scanner_animation)
+        binding.barcodeLine.startAnimation(aniSlide)
+    }
+    private fun isPermissionGranted():Boolean{
+       val permission = ContextCompat.checkSelfPermission(applicationContext,Manifest.permission.CAMERA)
+        return permission == PackageManager.PERMISSION_GRANTED
+    }
 
-                        return
-                    }
-                    cameraSource.start(holder)
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
+    override fun onResume() {
+        super.onResume()
+        if (isPermissionGranted()){
+            codeScanner?.startPreview()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        codeScanner?.releaseResources()
+    }
+
+
+
+
+    private fun setupControls() {
+        codeScanner = applicationContext?.let { CodeScanner(it, binding.scannerView) }
+
+        codeScanner?.apply {
+            camera = CodeScanner.CAMERA_BACK
+            formats = CodeScanner.ALL_FORMATS
+            autoFocusMode = AutoFocusMode.SAFE
+            scanMode = ScanMode.SINGLE
+            isAutoFocusEnabled = true
+            isFlashEnabled = false
+        }
+
+        codeScanner?.decodeCallback = DecodeCallback {
+            runOnUiThread {
+                scannedValue = it.text
+                val resultIntent = Intent()
+                resultIntent.putExtra("result", scannedValue)
+                setResult(Activity.RESULT_OK, resultIntent)
+                finish()
             }
+        }
+        codeScanner?.errorCallback = ErrorCallback { // or ErrorCallback.SUPPRESS
+            runOnUiThread {
+                Toast.makeText(applicationContext, "Camera initialization error: ${it.message}",
+                    Toast.LENGTH_LONG).show()
 
-
-            override fun surfaceChanged(
-                holder: SurfaceHolder,
-                format: Int,
-                width: Int,
-                height: Int
-            ) {
-                try {
-                    if (ActivityCompat.checkSelfPermission(
-                            applicationContext,
-                            Manifest.permission.CAMERA
-                        ) != PackageManager.PERMISSION_GRANTED
-                    ) {
-
-                        return
-                    }
-                    cameraSource.start(holder)
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
             }
-
-            override fun surfaceDestroyed(holder: SurfaceHolder) {
-                cameraSource.stop()
-            }
-        })
-
-
-        barcodeDetector.setProcessor(object : Detector.Processor<Barcode> {
-            override fun release() {
-                Toast.makeText(applicationContext, "Scanner has been closed", Toast.LENGTH_SHORT)
-                    .show()
-            }
-
-            override fun receiveDetections(detections: Detector.Detections<Barcode>) {
-                val barcodes = detections.detectedItems
-                if (barcodes.size() == 1) {
-                    scannedValue = barcodes.valueAt(0).rawValue
-
-
-
-
-                    runOnUiThread {
-                        cameraSource.stop()
-                        val resultIntent = Intent()
-                        resultIntent.putExtra("result", scannedValue)
-                        setResult(Activity.RESULT_OK, resultIntent)
-                        finish()
-                    }
-                }else
-                {
-                    Toast.makeText(applicationContext, "value- else", Toast.LENGTH_SHORT).show()
-
-                }
-            }
-        })
+        }
+        binding.scannerView.setOnClickListener {
+            codeScanner?.startPreview()
+        }
     }
 
     private fun askForCameraPermission() {
@@ -144,6 +114,7 @@ class QrActivity : AppCompatActivity() {
         )
     }
 
+    @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -151,13 +122,16 @@ class QrActivity : AppCompatActivity() {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == requestCodeCameraPermission && grantResults.isNotEmpty()) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED ){
                 setupControls()
-            } else {
-                Toast.makeText(applicationContext, "Permission Denied", Toast.LENGTH_SHORT).show()
+
             }
+
+
         }
     }
+
+
 
     override fun onDestroy() {
         super.onDestroy()
