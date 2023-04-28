@@ -1,4 +1,4 @@
-package com.infos.androidtask.data.user
+package com.infos.androidtask.data.response.user
 
 data class UserInfo(
     val active: Boolean,

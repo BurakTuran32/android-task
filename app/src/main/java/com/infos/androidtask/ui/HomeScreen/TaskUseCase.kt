@@ -1,7 +1,7 @@
-package com.infos.androidtask.ui
+package com.infos.androidtask.ui.HomeScreen
 
-import com.infos.androidtask.data.TaskData
-import com.infos.androidtask.data.remote.Repository
+import com.infos.androidtask.data.response.TaskData
+import com.infos.androidtask.data.Repository
 import com.infos.androidtask.util.Constants
 import com.infos.androidtask.util.Resource
 import com.infos.androidtask.util.TokenManager

@@ -2,9 +2,9 @@ package com.infos.androidtask.di
 
 import android.content.Context
 import androidx.room.Room
-import com.infos.androidtask.data.LocalDataSource
-import com.infos.androidtask.data.RoomDB
-import com.infos.androidtask.data.TaskDao
+import com.infos.androidtask.data.local.LocalDataSource
+import com.infos.androidtask.data.local.RoomDB
+import com.infos.androidtask.data.local.TaskDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

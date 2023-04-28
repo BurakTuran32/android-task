@@ -1,9 +1,10 @@
-package com.infos.androidtask.data.remote
+package com.infos.androidtask.data
 
 
-import com.infos.androidtask.data.LocalDataSource
-import com.infos.androidtask.data.TaskData
-import com.infos.androidtask.data.user.LoginResponse
+import com.infos.androidtask.data.local.LocalDataSource
+import com.infos.androidtask.data.remote.RemoteDataSource
+import com.infos.androidtask.data.response.TaskData
+import com.infos.androidtask.data.response.user.LoginResponse
 import javax.inject.Inject
 
 class Repository @Inject constructor(

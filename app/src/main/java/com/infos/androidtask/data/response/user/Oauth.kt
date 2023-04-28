@@ -1,4 +1,4 @@
-package com.infos.androidtask.data.user
+package com.infos.androidtask.data.response.user
 
 data class Oauth(
     val access_token: String,

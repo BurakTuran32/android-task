@@ -1,12 +1,12 @@
-package com.infos.androidtask.ui
+package com.infos.androidtask.ui.HomeScreen
 
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.infos.androidtask.data.TaskData
-import com.infos.androidtask.data.remote.Repository
+import com.infos.androidtask.data.response.TaskData
+import com.infos.androidtask.data.Repository
 import com.infos.androidtask.util.Resource
 import com.infos.androidtask.util.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,6 +26,7 @@ class HomeViewModel @Inject constructor(
     init {
         authorizeAndFetchTask()
     }
+
 
     private fun authorizeAndFetchTask() {
         viewModelScope.launch {
@@ -84,6 +85,5 @@ class HomeViewModel @Inject constructor(
     fun getLocal() : List<TaskData>{
         return  repository.getData()
     }
-
 
 }

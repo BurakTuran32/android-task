@@ -1,4 +1,4 @@
-package com.infos.androidtask.data
+package com.infos.androidtask.data.response
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
@@ -14,19 +14,19 @@ data class TaskData(
     @SerializedName("businessUnit")
     @ColumnInfo val businessUnit: String?,
     @SerializedName("colorCode")
-    @ColumnInfo val colorCode: String,
+    @ColumnInfo val colorCode: String?,
     @SerializedName("description")
-    @ColumnInfo val description: String,
+    @ColumnInfo val description: String?,
     @SerializedName("isAvailableInTimeTrackingKioskMode")
     @ColumnInfo val isAvailableInTimeTrackingKioskMode: Boolean,
     @SerializedName("parentTaskID")
-    @ColumnInfo val parentTaskId: String,
+    @ColumnInfo val parentTaskId: String?,
     @SerializedName("sort")
-    @ColumnInfo val sort: String,
+    @ColumnInfo val sort: String?,
     @SerializedName("task")
-    @ColumnInfo val task: String,
+    @ColumnInfo val task: String?,
     @SerializedName("title")
-    @ColumnInfo val title: String,
+    @ColumnInfo val title: String?,
     @SerializedName("wageType")
-    @ColumnInfo val wageType: String,
+    @ColumnInfo val wageType: String?,
 )

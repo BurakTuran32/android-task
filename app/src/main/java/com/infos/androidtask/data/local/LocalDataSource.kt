@@ -1,5 +1,6 @@
-package com.infos.androidtask.data
+package com.infos.androidtask.data.local
 
+import com.infos.androidtask.data.response.TaskData
 import javax.inject.Inject
 
 class LocalDataSource @Inject constructor(

@@ -1,9 +1,10 @@
-package com.infos.androidtask.data
+package com.infos.androidtask.data.local
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.infos.androidtask.data.response.TaskData
 
 @Database(entities = [TaskData::class], version = 1)
 abstract class TaskDB : RoomDatabase() {
@@ -24,7 +25,7 @@ abstract class TaskDB : RoomDatabase() {
         }
 
         private fun makeDatabase(context: Context) = Room.databaseBuilder(
-            context.applicationContext,TaskDB::class.java,"taskdatabase"
+            context.applicationContext, TaskDB::class.java,"taskdatabase"
         ).build()
 
     }
